@@ -19,11 +19,13 @@
 #  along with this addon. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys
-import classes, comm, config, utils
+import os, sys
+import classes, comm, config, utils, urlparse
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 
-def play(url):
+def play(url, subtitles_dir):
+    time = 5000  #in miliseconds
+    xbmc.executebuiltin('Notification(%s, %s, %d)'%("iView","Loading...", time))
     addon = xbmcaddon.Addon(config.ADDON_ID)
 
     try:
@@ -36,7 +38,33 @@ def play(url):
         if hasattr(listitem, 'addStreamInfo'):
             listitem.addStreamInfo('audio', p.get_xbmc_audio_stream_info())
             listitem.addStreamInfo('video', p.get_xbmc_video_stream_info())
-    
+
+        try:
+            subtitles = get_setting_subtitles(addon)
+            if subtitles:
+                iview_config = comm.get_config()
+                o = urlparse.urlparse(p.url)
+                subtitles_file = comm.get_captions(iview_config, o.path[o.path.index(o.path.split("/")[3]):].split('.')[0], subtitles_dir)
+                if subtitles_file:
+                    listitem.setSubtitles([subtitles_file])
+        except:
+            # oops print error message
+            time = 10000  #in miliseconds
+            xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%("iView","Unable to load subtitles", time, p.thumbnail))
+            utils.log_error();
+
         xbmc.Player().play(p.get_url(), listitem)
+      
     except:
         utils.handle_error("Unable to play video")
+
+def get_setting_subtitles(addon):
+  #values="None|Download" default="None"
+  subtitles = addon and addon.getSetting('subtitles_control')
+  if subtitles:
+    if subtitles == 'None' or subtitles == '0':
+      return None
+    elif subtitles == 'Download' or subtitles == '1':
+      return 'download'
+  # default
+  return None

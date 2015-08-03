@@ -173,7 +173,6 @@ def can_send_error(trace):
     """ Check to see if our new error message is different from the last
         successful error report. If it is, or the file doesn't exist, then
         we'll return True
-    """
     try:
         rfile = os.path.join(get_file_dir(), 'last_report_error.txt')
 
@@ -188,6 +187,7 @@ def can_send_error(trace):
         log("Error checking error report file")
 
     log("Not allowing error report. Last report matches this one")
+    """
     return False
 
 

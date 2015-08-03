@@ -19,6 +19,7 @@
 #  along with this addon. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 import urllib2
 import config
 import parse
@@ -120,3 +121,24 @@ def get_series_from_feed(series, category='0-z'):
         if p.title == series:
             filtered.append(p)
     return filtered
+
+def get_captions(iview_config, url, subtitles_dir):
+    """This function takes a program name with the suffix stripped
+        (e.g. _video/news_730s_Tx_1506_650000) and
+        fetches the corresponding captions file. It then passes it to
+        parse_subtitle(), which converts it to SRT format.
+      """
+
+    if url.startswith('_video/'):
+        # Convert new URLs like the above example to "news_730s_tx_1506"
+        url = url.split('/', 1)[-1].rsplit('_', 1)[0].lower()
+    captions_url = urllib2.urlparse.urljoin('http://iview.abc.net.au/cc/legacy', url + '.vtt')
+    utils.log("Fetching captions: %s" % captions_url)
+
+    xml = fetch_url(captions_url)
+    xmlfile = os.path.join(subtitles_dir, 'iview.srt')
+    fw = open(xmlfile, 'w')
+    fw.write(xml)
+    fw.close()
+
+    return xmlfile

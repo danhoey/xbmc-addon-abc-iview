@@ -33,6 +33,10 @@ import utils, categories, series, programs, play
 # Print our platform/version debugging information
 utils.log_xbmc_platform_version()
 
+DIR_USERDATA   = xbmc.translatePath(current_dir)
+SUBTITLES_DIR  = os.path.join(current_dir, 'Subtitles')
+
+
 if __name__ == "__main__" :
    params_str = sys.argv[2]
    params = utils.get_url(params_str)
@@ -40,8 +44,18 @@ if __name__ == "__main__" :
    if (len(params) == 0):
       categories.make_category_list()
    elif params.has_key("play"):
-      play.play(params_str)
+      play.play(params_str, SUBTITLES_DIR)
    elif params.has_key("series"):
       programs.make_programs_list(params_str)
    elif params.has_key("category"):
       series.make_series_list(params_str)
+
+
+for d in [DIR_USERDATA, SUBTITLES_DIR]:
+    if not os.path.isdir(d):
+        try:
+            utils.log("%s doesn't exist, creating" % d)
+            os.makedirs(d)
+        except IOError as e:
+            utils.log("Couldn't create %s, %s" % (d, str(e)))
+            raise

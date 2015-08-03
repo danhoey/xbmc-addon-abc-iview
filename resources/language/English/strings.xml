@@ -9,4 +9,8 @@
     <string id="10090">Video Transport</string>
     <string id="10091">RTMP</string>
     <string id="10092">HTTP</string>
+    <!-- Subtitles -->
+    <string id="10100">Subtitles</string>
+    <string id="10101">None</string>
+    <string id="10102">Download</string>
 </strings>
